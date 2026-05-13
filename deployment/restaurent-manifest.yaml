@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment # Kubernetes resource kind we are creating
+metadata:
+  name: restaurant
+  labels:
+    app: restaurant
+spec:
+  replicas: 1 # Number of replicas that will be created for this deployment
+  selector:
+    matchLabels:
+      app: restaurant
+  template:
+    metadata:
+      labels:
+        app: restaurant
+    spec:
+      containers:
+        - name: restaurant
+          image: lhdenis35/restaurant-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9092 #
+
+          env: # Environment variables supplied to the Pod
+            - name: SPRING_DATASOURCE_USERNAME # Name of the environment variable
+              valueFrom: # Get the value of environment variable from kubernetes secrets
+                secretKeyRef:
+                  name: secret
+                  key: mysql-username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: mysql-password
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: configmap
+                  key: restaurant_db_url

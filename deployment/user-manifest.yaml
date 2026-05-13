@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment # Kubernetes resource kind we are creating
+metadata:
+  name: user
+  labels:
+    app: user
+spec:
+  replicas: 1 # Number of replicas that will be created for this deployment
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - name: user
+          image: lhdenis35/user-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9092 #
+
+          env: # Environment variables supplied to the Pod
+            - name: SPRING_DATASOURCE_USERNAME # Name of the environment variable
+              valueFrom: # Get the value of environment variable from kubernetes secrets
+                secretKeyRef:
+                  name: secret
+                  key: mysql-username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret
+                  key: mysql-password
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: configmap
+                  key: user_db_url
