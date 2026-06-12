@@ -246,7 +246,8 @@ Jenkins runs on a dedicated **AWS EC2 instance**.
 
 Its responsibilities include:
 - cloning the source code repository
-- running Maven build and Tests
+- running Maven build
+- running Tests with JUnit
 - performing SonarQube analysis
 - building Docker images
 - pushing updated images
