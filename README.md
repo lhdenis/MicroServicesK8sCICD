@@ -239,27 +239,40 @@ This is especially important before deploying changes automatically through CI/C
 
 ### 9. CI/CD Pipeline
 
-The project uses a complete CI/CD workflow with GitHub, Jenkins, and Argo CD.
-
 #### Continuous Integration – Jenkins
-Jenkins runs on a dedicated AWS EC2 instance.
 
-Its responsibilities include:
-- cloning the source code repository
-- running Maven build
-- running Tests with JUnit
-- performing SonarQube analysis
-- building Docker images
-- pushing updated images
-- updating Kubernetes deployment manifests with the new image tag
+Jenkins runs on a dedicated AWS EC2 instance and is triggered automatically via a **GitHub webhook** on every `git push`.
 
-Jenkins is responsible for validating and packaging the application.
+Two separate pipelines are defined, one per application layer:
+
+**Backend pipeline (Spring Boot / Maven)**
+
+```
+Git clone → mvn install → JUnit tests → SonarQube analysis → Docker build → Docker push → Update manifest
+```
+
+- Dependencies resolved and compiled with Maven
+- Unit tests executed with JUnit, coverage measured with JaCoCo
+- Code quality and security analysis performed by SonarQube
+- Docker image built and pushed to Docker Hub
+- Kubernetes deployment manifest updated with the new image tag (Jenkins build number)
+
+**Frontend pipeline (Angular / Node)**
+
+```
+Git clone → npm install → npm run build → Docker build → Docker push → Update manifest
+```
+
+- Dependencies installed with npm
+- Angular application compiled and bundled
+- Docker image built and pushed to Docker Hub
+- Kubernetes deployment manifest updated with the new image tag
+- Note: no unit tests or SonarQube analysis configured at this stage
 
 #### Continuous Deployment – Argo CD
-Argo CD runs inside the Kubernetes cluster.
 
-It continuously monitors the deployment repository containing the Kubernetes manifests.
-When a manifest changes, Argo CD detects the desired new state and synchronizes the cluster automatically.
+Argo CD runs inside the Kubernetes cluster and continuously monitors the GitOps deployment repository.  
+When a manifest is updated by Jenkins, Argo CD detects the change and automatically synchronizes the cluster state.
 
 This means:
 - updated images are redeployed automatically
