@@ -285,7 +285,27 @@ Argo CD is therefore responsible for deploying and synchronizing the Kubernetes 
 
 ---
 
-### 10. End-to-End Functional Flow
+### 10. Observability
+
+The cluster is monitored using the **kube-prometheus-stack**, installed via Helm in a dedicated `monitoring` namespace.
+
+```bash
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+  -n monitoring --create-namespace
+```
+
+This provides out-of-the-box monitoring of the Kubernetes infrastructure without any modification to the application code:
+
+- Pod-level metrics: CPU usage, memory consumption, restart count
+- Node-level metrics: cluster capacity and utilization
+- Grafana dashboards: pre-configured visualizations for the entire cluster
+
+This observability layer operates independently from the application services.  
+Extending it to application-level metrics (HTTP request rates, latency per endpoint, JVM heap usage) would require adding Micrometer to each Spring Boot service and configuring a ServiceMonitor per deployment.
+
+---
+
+### 11. End-to-End Functional Flow
 
 From a user perspective, the application works as follows:
 
