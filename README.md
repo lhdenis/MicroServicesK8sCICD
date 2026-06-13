@@ -175,7 +175,7 @@ The application is deployed on AWS using a cloud-native architecture.
 
 Each backend service and the frontend are:
 1. packaged as Docker images
-2. pushed to a container registry
+2. pushed to a container registry - Docker Hub
 3. deployed in Amazon EKS, AWS's managed Kubernetes service
 
 Within Kubernetes:
